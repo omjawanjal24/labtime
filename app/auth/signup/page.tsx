@@ -33,9 +33,22 @@ export default function SignupPage() {
     try {
       const supabase = createClient();
 
+      // Pass all profile fields as metadata so the DB trigger can create the profile
+      // This is required when email confirmation is enabled (no session exists after signUp)
       const { data: authData, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            student_id: formData.prnId,
+            department: formData.department,
+            year: formData.year,
+            mobile_no: formData.mobileNo,
+            user_type: formData.userType,
+          },
+        },
       });
 
       if (signupError) {
@@ -46,30 +59,6 @@ export default function SignupPage() {
 
       if (!authData.user) {
         setError('Signup failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-      // Create user profile with all info
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: authData.user.id,
-            email: formData.email,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            student_id: formData.prnId,
-            department: formData.department,
-            year: formData.year,
-            mobile_no: formData.mobileNo,
-            user_type: formData.userType,
-            role: 'user',
-          },
-        ]);
-
-      if (profileError) {
-        setError('Failed to create profile: ' + profileError.message);
         setLoading(false);
         return;
       }
