@@ -112,7 +112,8 @@ export default function BookEquipmentPage() {
       .select('id')
       .eq('user_id', session.user.id)
       .eq('equipment_id', equipmentId)
-      .eq('booking_date', selectedDate);
+      .eq('booking_date', selectedDate)
+      .neq('status', 'cancelled');
 
     return data && data.length > 0;
   };

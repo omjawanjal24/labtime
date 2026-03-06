@@ -13,6 +13,11 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
+    student_id: '',
+    department: '',
+    year: '',
+    mobile_no: '',
+    user_type: 'student',
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
@@ -38,6 +43,11 @@ export default function ProfilePage() {
         setFormData({
           first_name: profileData.first_name || '',
           last_name: profileData.last_name || '',
+          student_id: profileData.student_id || '',
+          department: profileData.department || '',
+          year: profileData.year || '',
+          mobile_no: profileData.mobile_no || '',
+          user_type: profileData.user_type || 'student',
         });
       }
 
@@ -58,6 +68,11 @@ export default function ProfilePage() {
       .update({
         first_name: formData.first_name,
         last_name: formData.last_name,
+        student_id: formData.student_id,
+        department: formData.department,
+        year: formData.year,
+        mobile_no: formData.mobile_no,
+        user_type: formData.user_type,
       })
       .eq('id', session.user.id);
 
@@ -65,13 +80,9 @@ export default function ProfilePage() {
       setMessage('Profile updated successfully!');
       setMessageType('success');
       setEditing(false);
-      setProfile({
-        ...profile,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-      });
+      setProfile({ ...profile, ...formData });
     } else {
-      setMessage('Failed to update profile');
+      setMessage('Failed to update profile: ' + error.message);
       setMessageType('error');
     }
 
@@ -111,32 +122,90 @@ export default function ProfilePage() {
           )}
 
           {editing ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">First Name</label>
+                  <input
+                    type="text"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Last Name</label>
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
-                  First Name
-                </label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">PRN ID</label>
                 <input
                   type="text"
-                  value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                  value={formData.student_id}
+                  onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder="e.g. 1234567890"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">
-                  Last Name
-                </label>
+                <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Department</label>
                 <input
                   type="text"
-                  value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder="e.g. Computer Engineering"
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Year</label>
+                  <select
+                    value={formData.year}
+                    onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  >
+                    <option value="">Select Year</option>
+                    <option value="FY">FY</option>
+                    <option value="SY">SY</option>
+                    <option value="TY">TY</option>
+                    <option value="BTech">BTech</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Role</label>
+                  <select
+                    value={formData.user_type}
+                    onChange={(e) => setFormData({ ...formData, user_type: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  >
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Mobile Number</label>
+                <input
+                  type="tel"
+                  value={formData.mobile_no}
+                  onChange={(e) => setFormData({ ...formData, mobile_no: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder="e.g. 9876543210"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-2">
                 <button
                   onClick={handleSave}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors"
@@ -149,6 +218,11 @@ export default function ProfilePage() {
                     setFormData({
                       first_name: profile.first_name || '',
                       last_name: profile.last_name || '',
+                      student_id: profile.student_id || '',
+                      department: profile.department || '',
+                      year: profile.year || '',
+                      mobile_no: profile.mobile_no || '',
+                      user_type: profile.user_type || 'student',
                     });
                   }}
                   className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3 rounded-lg transition-colors border border-gray-700"
@@ -158,35 +232,56 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-8">
-              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+            <div className="space-y-6">
+              <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
                 <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Email Address</p>
-                <p className="text-xl font-semibold text-white flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  {profile?.email}
-                </p>
-              </div>
-
-              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-                <p className="text-sm text-gray-400 uppercase tracking-wide mb-2">Full Name</p>
-                <p className="text-xl font-semibold text-white flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {profile?.first_name} {profile?.last_name}
-                </p>
+                <p className="text-lg font-semibold text-white">{profile?.email}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-2">Account Role</p>
+                <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">First Name</p>
+                  <p className="text-lg font-semibold text-white">{profile?.first_name || '—'}</p>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Last Name</p>
+                  <p className="text-lg font-semibold text-white">{profile?.last_name || '—'}</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">PRN ID</p>
+                <p className="text-lg font-semibold text-white">{profile?.student_id || '—'}</p>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Department</p>
+                <p className="text-lg font-semibold text-white">{profile?.department || '—'}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Year</p>
+                  <p className="text-lg font-semibold text-white">{profile?.year || '—'}</p>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Role</p>
+                  <p className="text-lg font-bold text-blue-400 capitalize">{profile?.user_type || '—'}</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Mobile Number</p>
+                <p className="text-lg font-semibold text-white">{profile?.mobile_no || '—'}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Account Role</p>
                   <p className="text-lg font-bold text-blue-400 uppercase tracking-wider">{profile?.role}</p>
                 </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-2">Member Since</p>
+                <div className="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+                  <p className="text-sm text-gray-400 uppercase tracking-wide mb-1">Member Since</p>
                   <p className="text-lg font-semibold text-white">
                     {new Date(profile?.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                   </p>

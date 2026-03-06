@@ -11,13 +11,18 @@ create table if not exists public.profiles (
   student_id text null,
   email text null,
   department text null,
+  year text null,
+  mobile_no text null,
   role text not null default 'user',
-  user_type text not null default 'student', -- student | staff | researcher
+  user_type text not null default 'student', -- student | faculty
   created_at timestamptz not null default timezone('utc'::text, now()),
   avatar_url text null,
+  ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS year text;
+  ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS mobile_no text;
   constraint profiles_pkey primary key (id),
   constraint profiles_id_fkey foreign key (id) references auth.users (id) on delete cascade
 );
+
 
 -- =========================
 -- ADMINS (optional but useful)

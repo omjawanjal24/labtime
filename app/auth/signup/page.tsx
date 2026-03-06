@@ -7,12 +7,23 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    prnId: '',
+    department: '',
+    year: '',
+    mobileNo: '',
+    userType: 'student',
+  });
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +33,9 @@ export default function SignupPage() {
     try {
       const supabase = createClient();
 
-      // Sign up user
       const { data: authData, error: signupError } = await supabase.auth.signUp({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
       });
 
       if (signupError) {
@@ -40,15 +50,20 @@ export default function SignupPage() {
         return;
       }
 
-      // Create user profile
+      // Create user profile with all info
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
           {
             id: authData.user.id,
-            email,
-            first_name: firstName,
-            last_name: lastName,
+            email: formData.email,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            student_id: formData.prnId,
+            department: formData.department,
+            year: formData.year,
+            mobile_no: formData.mobileNo,
+            user_type: formData.userType,
             role: 'user',
           },
         ]);
@@ -59,7 +74,6 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to login
       router.push('/auth/login?message=Check your email to confirm your account');
     } catch (err) {
       setError('An unexpected error occurred');
@@ -70,8 +84,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
+      <div className="w-full max-w-lg">
         <div className="bg-white rounded-lg shadow-lg p-8">
           {/* Logo/Title */}
           <div className="text-center mb-8">
@@ -87,45 +101,139 @@ export default function SignupPage() {
               </div>
             )}
 
+            {/* Name Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                  placeholder="John"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                  placeholder="Doe"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                First Name
+              <label htmlFor="prnId" className="block text-sm font-medium text-gray-700 mb-1">
+                PRN ID
               </label>
               <input
-                id="firstName"
+                id="prnId"
+                name="prnId"
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={formData.prnId}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                placeholder="John"
+                placeholder="e.g. 1234567890"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                Last Name
+              <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                Department
               </label>
               <input
-                id="lastName"
+                id="department"
+                name="department"
                 type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                value={formData.department}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                placeholder="Doe"
+                placeholder="e.g. Computer Engineering"
+                required
+              />
+            </div>
+
+            {/* Year & Role Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+                  Year
+                </label>
+                <select
+                  id="year"
+                  name="year"
+                  value={formData.year}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none bg-white"
+                  required
+                >
+                  <option value="">Select Year</option>
+                  <option value="FY">FY</option>
+                  <option value="SY">SY</option>
+                  <option value="TY">TY</option>
+                  <option value="BTech">BTech</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  id="userType"
+                  name="userType"
+                  value={formData.userType}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none bg-white"
+                  required
+                >
+                  <option value="student">Student</option>
+                  <option value="faculty">Faculty</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="mobileNo" className="block text-sm font-medium text-gray-700 mb-1">
+                Mobile Number
+              </label>
+              <input
+                id="mobileNo"
+                name="mobileNo"
+                type="tel"
+                value={formData.mobileNo}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                placeholder="e.g. 9876543210"
+                pattern="[0-9]{10}"
+                title="Enter a valid 10-digit mobile number"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 placeholder="you@example.com"
                 required
@@ -133,14 +241,15 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 placeholder="••••••••"
                 required
