@@ -140,6 +140,14 @@ export default function BookEquipmentPage() {
     try {
       const supabase = createClient();
 
+      // Ensure profile row exists (handles users who signed up before the trigger was added)
+      await supabase
+        .from('profiles')
+        .upsert(
+          { id: session.user.id, email: session.user.email, role: 'user' },
+          { onConflict: 'id', ignoreDuplicates: true }
+        );
+
       // Get slot details
       const selectedSlotData = slots.find(s => s.id === selectedSlot);
       if (!selectedSlotData) {
